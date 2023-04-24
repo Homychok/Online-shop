@@ -1,5 +1,6 @@
 package com.example.diplomproject.dto;
 
+import com.example.diplomproject.annotations.MyAnnotation;
 import com.example.diplomproject.config.GrantedAuthorityDeserializer;
 import com.example.diplomproject.enums.Role;
 import com.example.diplomproject.model.User;

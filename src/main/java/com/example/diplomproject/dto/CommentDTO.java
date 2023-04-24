@@ -1,8 +1,8 @@
 package com.example.diplomproject.dto;
 
+import com.example.diplomproject.annotations.MyAnnotation;
 import com.example.diplomproject.exception.ImageNotFoundException;
 import com.example.diplomproject.model.Comment;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.time.Instant;
@@ -11,16 +11,12 @@ import java.time.Instant;
 public class CommentDTO {
     @MyAnnotation(name = "id автора комментария")
     private Integer author;
-//    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
 @MyAnnotation(name = "ссылка на аватар автора комментария")
 private String authorImage;
-//    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
 @MyAnnotation(name = "имя создателя комментария")
 private String authorFirstName;
-//    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
 @MyAnnotation(name = "дата и время создания комментария в миллисекундах с 00:00:00 01.01.1970")
 private Instant createdAt;
-//    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
 @MyAnnotation(name = "id комментария")
 private Integer pk;
     @MyAnnotation(name = "текст комментария")

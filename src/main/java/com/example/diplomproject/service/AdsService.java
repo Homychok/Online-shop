@@ -56,7 +56,11 @@ public class AdsService {
                 adsRepository.findById(id)
                         .orElseThrow(AdsNotFoundException::new));
     }
-
+    public AdsDTO getAdsDTOById(Integer id) {
+        return AdsDTO.fromAdsDTO(
+                adsRepository.findById(id)
+                        .orElseThrow(AdsNotFoundException::new));
+    }
     public void removeAdsById(Integer id) {
         adsRepository.deleteById(id);
     }

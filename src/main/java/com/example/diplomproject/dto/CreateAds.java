@@ -1,12 +1,9 @@
 package com.example.diplomproject.dto;
+import com.example.diplomproject.annotations.MyAnnotation;
 import com.example.diplomproject.model.Ads;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 @Data
-//@Getter
-//@Setter
 public class CreateAds {
     @MyAnnotation(name = "заголовок объявления")
     private String title;

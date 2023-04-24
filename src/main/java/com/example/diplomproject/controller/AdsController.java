@@ -111,7 +111,7 @@ public class AdsController {
                             responseCode = "200", description = "OK",
                             content = {@Content(mediaType = "application/json",
                                     schema = @Schema(implementation = CreateAds.class))}),
-                    @ApiResponse(responseCode = "401", description = "Unauthorised", content = @Content), //где получить?
+                    @ApiResponse(responseCode = "401", description = "Unauthorised", content = @Content),
                     @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content),
                     @ApiResponse(responseCode = "404", description = "Not found", content = @Content)
             }
@@ -135,12 +135,12 @@ public class AdsController {
                             responseCode = "200", description = "OK",
                             content = {@Content(mediaType = "application/json",
                                     schema = @Schema(implementation = ResponseWrapperAds.class))}),
-                    @ApiResponse(responseCode = "401", description = "Unauthorised", content = @Content), //где получить?
+                    @ApiResponse(responseCode = "401", description = "Unauthorised", content = @Content),
                     @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
             }
     )
     @GetMapping("/me")
-    public ResponseEntity<ResponseWrapperAds> getAdsMe(Authentication authentication) {
+    public ResponseEntity<ResponseWrapperAds> getAdsAuthentication(Authentication authentication) {
         ResponseWrapperAds responseWrapperAds = adsService.getAdsAuthentication(authentication);
         return ResponseEntity.ok(responseWrapperAds);
     }

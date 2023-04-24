@@ -1,4 +1,5 @@
 package com.example.diplomproject.dto;
+import com.example.diplomproject.annotations.MyAnnotation;
 import com.example.diplomproject.exception.ImageNotFoundException;
 import com.example.diplomproject.model.Ads;
 import lombok.Data;

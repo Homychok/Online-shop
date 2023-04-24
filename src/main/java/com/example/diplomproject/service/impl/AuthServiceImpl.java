@@ -4,8 +4,6 @@ import com.example.diplomproject.dto.RegisterReq;
 import com.example.diplomproject.repository.UserRepository;
 import com.example.diplomproject.service.AuthService;
 import com.example.diplomproject.service.CustomUserDetailsService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;

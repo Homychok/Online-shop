@@ -85,7 +85,6 @@ public class CommentController {
     public ResponseEntity<CommentDTO> updateComments(@PathVariable("adId") Integer adId,
                                                         @PathVariable("commentId") Integer commentId,
                                                         @RequestBody CommentDTO commentDTO) {
-//        return ResponseEntity.ok(commentService.updateComments(adId, commentId, commentDTO));
         CommentDTO comment = commentService.updateComments(adId, commentId, commentDTO);
         if (comment != null) {
             return ResponseEntity.ok(comment);

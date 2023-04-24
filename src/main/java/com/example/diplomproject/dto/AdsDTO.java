@@ -1,4 +1,5 @@
 package com.example.diplomproject.dto;
+import com.example.diplomproject.annotations.MyAnnotation;
 import com.example.diplomproject.exception.ImageNotFoundException;
 import com.example.diplomproject.model.Ads;
 import lombok.Data;
@@ -7,17 +8,14 @@ import lombok.Data;
 public class AdsDTO {
     @MyAnnotation(name = "id автора объявления")
     private Integer author;
-//    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
 @MyAnnotation(name = "ссылка на картинку объявления")
 private String image;
-//    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
 @MyAnnotation(name = "id объявления")
 private Integer pk;
     @MyAnnotation(name = "цена объявления")
     private int price;
     @MyAnnotation(name = "заголовок объявления")
     private String title;
-//    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @MyAnnotation(name = "описание объявления")
     private String description;
     public static AdsDTO fromAdsDTO(Ads ads) {

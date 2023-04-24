@@ -1,8 +1,8 @@
 package com.example.diplomproject.dto;
 
+import com.example.diplomproject.annotations.MyAnnotation;
 import lombok.Data;
 
-import java.util.Collection;
 import java.util.List;
 
 @Data
