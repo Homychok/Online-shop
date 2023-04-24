@@ -2,12 +2,9 @@ package com.example.diplomproject.controller;
 
 import com.example.diplomproject.dto.RegisterReq;
 import com.example.diplomproject.enums.Role;
-import com.example.diplomproject.repository.UserRepository;
 import com.example.diplomproject.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONObject;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

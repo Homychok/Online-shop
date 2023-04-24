@@ -3,7 +3,6 @@ import com.example.diplomproject.annotations.MyAnnotation;
 import com.example.diplomproject.exception.ImageNotFoundException;
 import com.example.diplomproject.model.Ads;
 import lombok.Data;
-
 @Data
 public class AdsDTO {
     @MyAnnotation(name = "id автора объявления")

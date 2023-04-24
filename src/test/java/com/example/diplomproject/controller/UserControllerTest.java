@@ -1,15 +1,12 @@
 package com.example.diplomproject.controller;
-import com.example.diplomproject.dto.UserDTO;
 import com.example.diplomproject.enums.Role;
 import com.example.diplomproject.model.Avatar;
-import com.example.diplomproject.model.Image;
 import com.example.diplomproject.model.User;
 import com.example.diplomproject.repository.AvatarRepository;
 import com.example.diplomproject.repository.UserRepository;
 import com.example.diplomproject.service.CustomUserDetailsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONObject;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

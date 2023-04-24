@@ -1,5 +1,4 @@
 -- liquibase formatted sql
-
 -- changeset Homychok:1
 CREATE TABLE comment(
                          id              SERIAL PRIMARY KEY,

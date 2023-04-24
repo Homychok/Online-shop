@@ -4,7 +4,6 @@ import com.example.diplomproject.annotations.MyAnnotation;
 import com.example.diplomproject.exception.ImageNotFoundException;
 import com.example.diplomproject.model.User;
 import lombok.Data;
-
 @Data
 public class UserDTO {
 

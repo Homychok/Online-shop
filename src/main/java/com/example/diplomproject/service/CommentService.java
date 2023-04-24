@@ -10,7 +10,6 @@ import com.example.diplomproject.repository.AdsRepository;
 import com.example.diplomproject.repository.CommentRepository;
 import com.example.diplomproject.repository.UserRepository;
 import org.springframework.security.core.Authentication;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
