@@ -23,10 +23,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import javax.transaction.Transactional;
 import java.time.Instant;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
@@ -37,41 +39,46 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureJsonTesters
+@Transactional
 class CommentControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
-    private UserRepository userRepository;
+    private UserRepository userRepos;
     @Autowired
-    private AdsRepository adsRepository;
+    private AdsRepository adsRepos;
     @Autowired
-    private CommentRepository commentRepository;
+    private CommentRepository commentRepos;
     @Autowired
     private CustomUserDetailsService manager;
     @Autowired
     private PasswordEncoder encoder;
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private MockMvc mockMvcComment;
+
+    private final User user = new User();
+
 
     private Authentication authentication;
-    private final User users = new User();
     private final Ads ads = new Ads();
     private final Comment comment = new Comment();
     private final CommentDTO commentDTO = new CommentDTO();
 
     @BeforeEach
     void setUp() {
-        users.setRole(Role.USER);
-        users.setFirstName("test FirstName");
-        users.setLastName("test LastName");
-        users.setPhone("+7123456789");
-        users.setUsername("test@test.test");
-        users.setPassword("test1234");
-        users.setEnabled(true);
-        userRepository.save(users);
+        user.setRole(Role.USER);
+        user.setFirstName("test FirstName");
+        user.setLastName("test LastName");
+        user.setPhone("+7123456789");
+        user.setUsername("test@test.test");
+        user.setPassword("test1234");
+        user.setEnabled(true);
+        userRepos.save(user);
 
         UserDetails userDetails = manager
-                .loadUserByUsername(users.getUsername());
+                .loadUserByUsername(user.getUsername());
 
         authentication = new UsernamePasswordAuthenticationToken(userDetails.getUsername(),
                 userDetails.getPassword(),
@@ -80,27 +87,27 @@ class CommentControllerTest {
         ads.setTitle("Test ads");
         ads.setDescription("Test test");
         ads.setPrice(150);
-        ads.setAuthor(users);
-        adsRepository.save(ads);
+        ads.setAuthor(user);
+        adsRepos.save(ads);
 
         comment.setText("Test comment");
         comment.setAds(ads);
         comment.setCreatedAt(Instant.now());
-        comment.setAuthor(users);
-        commentRepository.save(comment);
+        comment.setAuthor(user);
+        commentRepos.save(comment);
 
         commentDTO.setText("Comment test");
     }
 
     @AfterEach
-    void deleteAll() {
-        commentRepository.delete(comment);
-        adsRepository.delete(ads);
-        userRepository.delete(users);
+    void cleatUp() {
+        commentRepos.delete(comment);
+        adsRepos.delete(ads);
+        userRepos.delete(user);
     }
 
     @Test
-    public void testGetCommentsById() throws Exception {
+    public void testGetCommentsByAdId() throws Exception {
         mockMvc.perform(get("/ads/{id}/comments", ads.getId())
                         .with(authentication(authentication)))
                 .andExpect(status().isOk())
@@ -111,7 +118,7 @@ class CommentControllerTest {
     }
 
     @Test
-    public void testAddAdsComment() throws Exception {
+    public void testAddComment() throws Exception {
         MvcResult result = mockMvc.perform(post("/ads/{id}/comments", ads.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(commentDTO))
@@ -121,11 +128,11 @@ class CommentControllerTest {
                 .andExpect(jsonPath("$.text")
                         .value(commentDTO.getText()))
                 .andExpect(jsonPath("$.authorFirstName")
-                        .value(users.getFirstName()))
+                        .value(user.getFirstName()))
                 .andReturn();
         String responseBody = result.getResponse().getContentAsString();
         AdsDTO createdAd = objectMapper.readValue(responseBody, AdsDTO.class);
-        commentRepository.deleteById(createdAd.getPk());
+        commentRepos.deleteById(createdAd.getPk());
     }
 
     @Test
@@ -139,7 +146,7 @@ class CommentControllerTest {
     public void testUpdateComment() throws Exception {
         String newText = "New Test comment";
         comment.setText(newText);
-        commentRepository.save(comment);
+        commentRepos.save(comment);
 
         mockMvc.perform(patch("/ads/{adId}/comments/{commentId}", ads.getId(), comment.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -148,4 +155,74 @@ class CommentControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.text").value(comment.getText()));
     }
-}
+    @Test
+    @WithMockUser(username = "1@mail.ru", password = "1234qwer")
+    void getComments() throws Exception {
+        mockMvcComment.perform(get("/ads/" + ads.getId() + "/comments"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").exists())
+                .andExpect(jsonPath("$.results").isArray())
+                .andExpect(jsonPath("$.count").isNumber());
+    }
+
+    @Test
+    @WithMockUser(username = "1@mail.ru", password = "1234qwer")
+    void addComment() throws Exception {
+        CommentDTO commentDTO = new CommentDTO();
+        commentDTO.setText("text2");
+        mockMvcComment.perform(post("/ads/" + ads.getId() + "/comments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(commentDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.text").value("text2"));
+
+    }
+
+    @Test
+    @WithMockUser(username = "2@mail.ru", password = "1234qwer")
+    void deleteComment_withRoleUser() throws Exception {
+        mockMvcComment.perform(delete("/ads/" + ads.getId() + "/comments/" + comment.getId()))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "2@mail.ru", password = "1234qwer", roles = "ADMIN")
+    void deleteComment_withRoleAdmin() throws Exception {
+        mockMvcComment.perform(delete("/ads/" + ads.getId() + "/comments/" + comment.getId()))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "1@mail.ru", password = "1234qwer")
+    void updateComment() throws Exception {
+        mockMvcComment.perform(patch("/ads/" + ads.getId() + "/comments/" + comment.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\n" +
+                                "  \"text\": \"newText\"\n" +
+                                "}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.text").value("newText"));
+    }
+
+    @Test
+    @WithMockUser(username = "2@mail.ru", password = "1234qwer")
+    void updateComment_withOtherUser() throws Exception {
+        mockMvcComment.perform(patch("/ads/" + ads.getId() + "/comments/" + comment.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\n" +
+                                "  \"text\": \"newText\"\n" +
+                                "}"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "2@mail.ru", password = "1234qwer", roles = "ADMIN")
+    void updateComment_withRoleAdmin() throws Exception {
+        mockMvcComment.perform(patch("/ads/" + ads.getId() + "/comments/" + comment.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\n" +
+                                "  \"text\": \"newText\"\n" +
+                                "}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.text").value("newText"));
+    }}

@@ -1,4 +1,5 @@
 package com.example.diplomproject.controller;
+import com.example.diplomproject.dto.UserDTO;
 import com.example.diplomproject.enums.Role;
 import com.example.diplomproject.model.Avatar;
 import com.example.diplomproject.model.Image;
@@ -22,6 +23,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -32,8 +34,8 @@ import java.util.Collections;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -138,5 +140,41 @@ class UserControllerTest {
 
         user.setAvatar(null);
         avatarRepository.deleteAllById(Collections.singleton(avatar.getId()));
+    }
+    @Test
+    @WithMockUser(username = "1@mail.ru", password = "1234qwer")
+    void setPassword() throws Exception {
+
+        mockMvc.perform(post("/users/set_password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\n" +
+                                "  \"newPassword\": \"qwer1234\",\n" +
+                                "  \"currentPassword\": \"1234qwer\"\n" +
+                                "}"))
+                .andExpect(status().isOk());
+    }
+
+
+    @Test
+    @WithMockUser(username = "1@mail.ru", password = "1234qwer")
+    void updateUserImage() throws Exception {
+        MockPart image = new MockPart("image", "avatar", "userAvatar".getBytes());
+        mockMvc.perform(patch("/users/me/image")
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .with(request -> {
+                            request.addPart(image);
+                            return request;
+                        }))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "1@mail.ru", password = "1234qwer")
+    void showAvatarOnId() throws Exception {
+        User testUser = userRepository.findByUsernameIgnoreCase(user.getUsername());
+        mockMvc.perform(get("/users/me/image/" + testUser.getId()))
+                .andExpect(status().isOk())
+                .andExpect(content().bytes("userAvatar".getBytes()));
+
     }
 }
