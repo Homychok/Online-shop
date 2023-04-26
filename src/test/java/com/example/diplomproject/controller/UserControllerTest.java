@@ -160,7 +160,7 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "1@mail.ru", password = "1234qwer")
+    @WithMockUser(username = "test@test.ru", password = "aqws123")
     void showAvatarOnId() throws Exception {
         User testUser = userRepository.findByUsernameIgnoreCase(user.getUsername()).orElseThrow(UserNotFoundException::new);
         mockMvc.perform(get("/users/me/image/" + testUser.getId()))

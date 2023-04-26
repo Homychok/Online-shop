@@ -15,7 +15,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import com.example.diplomproject.dto.AdsDTO;
 import com.example.diplomproject.dto.CreateAds;
 import com.example.diplomproject.enums.Role;
 import com.example.diplomproject.model.Ads;
@@ -24,7 +23,6 @@ import com.example.diplomproject.repository.AdsRepository;
 import com.example.diplomproject.repository.UserRepository;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
 import org.springframework.security.core.Authentication;
-import org.springframework.test.web.servlet.MvcResult;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 
 @SpringBootTest
@@ -97,29 +95,6 @@ class AdsControllerTest  {
                 .andExpect(jsonPath("$").exists());
     }
 
-//    @Test
-//    public void testAddAds() throws Exception {
-//        createAds.setTitle("Test test test");
-//        createAds.setDescription("Add Test test");
-//        createAds.setPrice(150);
-//
-//        MockPart created = new MockPart("properties",
-//                objectMapper.writeValueAsBytes(createAds));
-//
-//        MvcResult result = mockMvcAds.perform(multipart("/ads")
-//                        .part(image)
-//                        .part(created)
-//                        .with(authentication(authentication)))
-//                .andExpect(status().isCreated())
-//                .andExpect(jsonPath("$.pk").isNotEmpty())
-//                .andExpect(jsonPath("$.pk").isNumber())
-//                .andExpect(jsonPath("$.title").value(createAds.getTitle()))
-//                .andReturn();
-//
-//        String responseBody = result.getResponse().getContentAsString();
-//        AdsDTO createdAd = objectMapper.readValue(responseBody, AdsDTO.class);
-//        adsRepository.deleteById(createdAd.getPk());
-//    }
     @Test
     @WithMockUser(username = "test@test.ru", password = "aqws123")
     void addAds() throws Exception {
@@ -264,44 +239,6 @@ class AdsControllerTest  {
                 .andExpect(status().isOk())
                 .andExpect(content().bytes("image".getBytes()));
     }
-
-
-//    @Test
-//    public void testGetAdsById() throws Exception {
-//        mockMvcAds.perform(get("/ads/{id}", ads.getId())
-//                        .with(authentication(authentication)))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.pk").value(ads.getId()))
-//                .andExpect(jsonPath("$.title").value(ads.getTitle()))
-//                .andExpect(jsonPath("$.description").value(ads.getDescription()))
-//                .andExpect(jsonPath("$.price").value(ads.getPrice()))
-//                .andExpect(jsonPath("$.email").value(user.getUsername()))
-//                .andExpect(jsonPath("$.authorFirstName").value(user.getFirstName()))
-//                .andExpect(jsonPath("$.authorLastName").value(user.getLastName()))
-//                .andExpect(jsonPath("$.phone").value(user.getPhone()));
-//    }
-
-
-
-//    @Test
-//    public void testUpdateAds() throws Exception {
-//        String newTitle = "Ads test";
-//        String newDesc = "Test test2";
-//        Integer newPrice = 1555;
-//        ads.setTitle(newTitle);
-//        ads.setDescription(newDesc);
-//        ads.setPrice(newPrice);
-//        adsRepos.save(ads);
-//
-//        mockMvcAds.perform(patch("/ads/{id}", ads.getId())
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(ads))
-//                        .with((authentication(authentication))))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.title").value(newTitle));
-//
-//
-//    }
 
     @Test
     @WithMockUser(username = "test@test.ru", password = "aqws123")

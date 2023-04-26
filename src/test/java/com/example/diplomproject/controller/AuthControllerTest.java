@@ -16,7 +16,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -45,12 +44,12 @@ class AuthControllerTest {
         user.setFirstName("firstname");
         user.setLastName("lastname");
         user.setPhone("+79876543211");
-        user.setPassword(encoder.encode("1234qwer"));
+        user.setPassword(encoder.encode("aqws123"));
         user.setEnabled(true);
         user.setRole(Role.USER);
         userRepository.save(user);
         loginReq = new LoginReq();
-        loginReq.setPassword("1234qwer");
+        loginReq.setPassword("aqws123");
         loginReq.setUsername(user.getUsername());}
 
         @AfterEach
@@ -60,7 +59,7 @@ class AuthControllerTest {
     @Test
     public void testRegister() throws Exception {
         RegisterReq registerReq = new RegisterReq();
-        registerReq.setUsername("test@test.test");
+        registerReq.setUsername("test@test.ru");
         registerReq.setPassword("testPassword");
         registerReq.setFirstName("User1");
         registerReq.setLastName("Test1");
@@ -76,7 +75,7 @@ class AuthControllerTest {
                 .andExpect(status().isOk());
 
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("username", "test@test.test");
+        jsonObject.put("username", "test@test.ru");
         jsonObject.put("password", "password2");
 
         mockMvc.perform(post("/login")
@@ -86,12 +85,5 @@ class AuthControllerTest {
 
         userService.deleteUser(registerReq.getUsername());
     }
-//    @Test
-//    @WithAnonymousUser
-//    void login() throws Exception {
-//        mockMvc.perform(post("/login")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(loginReq))
-//                .accept(String.valueOf(status().isOk())).}
 
 }
