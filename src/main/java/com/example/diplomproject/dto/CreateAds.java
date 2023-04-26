@@ -1,6 +1,5 @@
 package com.example.diplomproject.dto;
 import com.example.diplomproject.annotations.MyAnnotation;
-import com.example.diplomproject.model.Ads;
 import lombok.Data;
 @Data
 public class CreateAds {
@@ -9,12 +8,5 @@ public class CreateAds {
     @MyAnnotation(name = "описание объявления")
     private String description;
     @MyAnnotation(name = "цена объявления")
-    private int price;
-    public Ads toAds() {
-        Ads ads = new Ads();
-        ads.setDescription(this.getDescription());
-        ads.setPrice(this.getPrice());
-        ads.setTitle(this.getTitle());
-        return ads;
-    }
+    private Integer price;
 }

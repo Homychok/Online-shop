@@ -56,8 +56,8 @@ public class UserController {
             }
     )
     @GetMapping("/me")
-    public ResponseEntity<UserDTO> getUser(Authentication authentication) {
-        return ResponseEntity.ok(userService.getUser(authentication));
+    public ResponseEntity<?> getUser(Authentication authentication) {
+        return ResponseEntity.ok(userService.getUserByUsername(authentication));
     }
 
     @Operation(
@@ -74,9 +74,8 @@ public class UserController {
             }
     )
     @PatchMapping("/me")
-    public ResponseEntity<UserDTO> updateUser(@RequestBody UserDTO userDTO,
-                                              Authentication authentication) {
-        return ResponseEntity.ok(userService.updateUser(userDTO, authentication));
+    public ResponseEntity<UserDTO> updateUser(@RequestBody UserDTO userDTO) {
+        return ResponseEntity.ok(userService.updateUser(userDTO));
     }
 
     @Operation(
@@ -90,10 +89,14 @@ public class UserController {
             }
     )
     @PatchMapping(value = "/me/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> updateUserAvatar(@RequestPart("image") MultipartFile avatarFile,
-                                              Authentication authentication) throws IOException {
+    public ResponseEntity<?> updateUserAvatar(Authentication authentication,
+                                              @RequestPart("image") MultipartFile avatarFile) throws IOException {
        ;
-        return ResponseEntity.ok( userService.updateUserAvatar(avatarFile, authentication));
+        return ResponseEntity.ok( userService.updateUserAvatar(authentication, avatarFile));
     }
-
+    @Operation(hidden = true)
+    @GetMapping(value = "/me/image/{id}", produces = MediaType.IMAGE_JPEG_VALUE)
+    public byte[] showAvatarOnId(@PathVariable("id") Integer id) {
+        return userService.showAvatarOnId(id);
+    }
 }

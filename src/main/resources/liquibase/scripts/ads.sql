@@ -7,5 +7,6 @@ CREATE TABLE ads(
                      description     TEXT,
                      price           INTEGER NOT NULL,
                      author_id       INT REFERENCES users(id),
-                     image_id        INTEGER REFERENCES image(id)
+                     image           BYTEA
+--                      image_id        INTEGER REFERENCES image(id)
 );

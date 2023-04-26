@@ -1,8 +1,7 @@
 package com.example.diplomproject.controller;
 import com.example.diplomproject.enums.Role;
-import com.example.diplomproject.model.Avatar;
+import com.example.diplomproject.exception.UserNotFoundException;
 import com.example.diplomproject.model.User;
-import com.example.diplomproject.repository.AvatarRepository;
 import com.example.diplomproject.repository.UserRepository;
 import com.example.diplomproject.service.CustomUserDetailsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import javax.transaction.Transactional;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -43,8 +43,6 @@ class UserControllerTest {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private AvatarRepository avatarRepository;
-    @Autowired
     private PasswordEncoder encoder;
     @Autowired
     private ObjectMapper objectMapper;
@@ -55,15 +53,14 @@ class UserControllerTest {
     private final User user = new User();
     private final MockPart imageFile
             = new MockPart("image", "image", "image".getBytes());
-    private final Avatar avatar = new Avatar();
 
     @BeforeEach
     void setUp() {
         user.setRole(Role.USER);
-        user.setFirstName("test FirstName");
-        user.setLastName("test LastName");
-        user.setPhone("+7123456789");
-        user.setUsername("test@test.test");
+        user.setFirstName("firstname");
+        user.setLastName("lastname");
+        user.setPhone("+79876543211");
+        user.setUsername("test@test.ru");
         user.setPassword(encoder.encode("test1234"));
         user.setEnabled(true);
         userRepository.save(user);
@@ -79,7 +76,6 @@ class UserControllerTest {
     @AfterEach
     void deleteAll() {
         userRepository.delete(user);
-        avatarRepository.delete(avatar);
     }
 
     @Test
@@ -135,25 +131,23 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        user.setAvatar(null);
-        avatarRepository.deleteAllById(Collections.singleton(avatar.getId()));
     }
     @Test
-    @WithMockUser(username = "1@mail.ru", password = "1234qwer")
+    @WithMockUser(username = "test@test.ru", password = "aqws123")
     void setPassword() throws Exception {
 
         mockMvc.perform(post("/users/set_password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
-                                "  \"newPassword\": \"qwer1234\",\n" +
-                                "  \"currentPassword\": \"1234qwer\"\n" +
+                                "  \"newPassword\": \"123aqws\",\n" +
+                                "  \"currentPassword\": \"aqws123\"\n" +
                                 "}"))
                 .andExpect(status().isOk());
     }
 
 
     @Test
-    @WithMockUser(username = "1@mail.ru", password = "1234qwer")
+    @WithMockUser(username = "test@test.ru", password = "aqws123")
     void updateUserImage() throws Exception {
         MockPart image = new MockPart("image", "avatar", "userAvatar".getBytes());
         mockMvc.perform(patch("/users/me/image")
@@ -168,7 +162,7 @@ class UserControllerTest {
     @Test
     @WithMockUser(username = "1@mail.ru", password = "1234qwer")
     void showAvatarOnId() throws Exception {
-        User testUser = userRepository.findByUsernameIgnoreCase(user.getUsername());
+        User testUser = userRepository.findByUsernameIgnoreCase(user.getUsername()).orElseThrow(UserNotFoundException::new);
         mockMvc.perform(get("/users/me/image/" + testUser.getId()))
                 .andExpect(status().isOk())
                 .andExpect(content().bytes("userAvatar".getBytes()));

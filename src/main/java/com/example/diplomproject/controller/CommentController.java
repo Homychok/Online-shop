@@ -1,7 +1,6 @@
 package com.example.diplomproject.controller;
 import com.example.diplomproject.dto.CommentDTO;
 import com.example.diplomproject.dto.ResponseWrapperComment;
-import com.example.diplomproject.exception.CommentNotFoundException;
 import com.example.diplomproject.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -25,9 +24,8 @@ public class CommentController {
 
     @Operation(summary = "Получить комментарии объявления", tags = "Комментарии")
     @GetMapping("/{id}/comments")
-    public ResponseEntity<ResponseWrapperComment> getComments(@PathVariable("id") Integer id) {
-        ResponseWrapperComment responseWrapperComment = commentService.getCommentsByAdsId(id);
-        return ResponseEntity.ok(responseWrapperComment);
+    public ResponseWrapperComment getComments(@PathVariable Integer id) {
+        return commentService.getCommentsByAdsId(id);
     }
 
     @Operation(
@@ -42,11 +40,10 @@ public class CommentController {
             }
     )
     @PostMapping("/{id}/comments")
-    public ResponseEntity<CommentDTO> addAdsComment(@PathVariable("id") Integer id,
-                                                       @RequestBody CommentDTO commentDTO,
-                                                       Authentication authentication) {
-        CommentDTO comment = commentService.addComment(id, commentDTO, authentication);
-        return ResponseEntity.ok(comment);
+    public CommentDTO addAdsComment(@PathVariable Integer id,
+                                    @RequestBody CommentDTO commentDTO,
+                                    Authentication authentication) {
+        return commentService.addComment(id, commentDTO, authentication);
     }
 
     @Operation(
@@ -61,9 +58,10 @@ public class CommentController {
     @PreAuthorize("@commentService.getCommentById(#commentId).getAuthor().username" +
             "== authentication.principal.username or hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{adId}/comments/{commentId}")
-    public ResponseEntity<?> deleteAdsComment(@PathVariable("adId") Integer adId,
-                                              @PathVariable("commentId") Integer commentId) {
-        commentService.deleteAdsComment(adId, commentId);
+    public ResponseEntity<?> deleteAdsComment(@PathVariable("commentId") Integer commentId,
+                                              @PathVariable("adId") Integer adId
+                                              ) {
+        commentService.deleteAdsComment(commentId, adId);
         return ResponseEntity.ok().build();
     }
 
@@ -81,15 +79,10 @@ public class CommentController {
     @PreAuthorize("@commentService.getCommentById(#commentId).getAuthor().username" +
             "== authentication.principal.username or hasRole('ROLE_ADMIN')")
     @PatchMapping("/{adId}/comments/{commentId}")
-    public ResponseEntity<CommentDTO> updateComments(@PathVariable("adId") Integer adId,
-                                                        @PathVariable("commentId") Integer commentId,
-                                                        @RequestBody CommentDTO commentDTO) {
-        CommentDTO comment = commentService.updateComments(adId, commentId, commentDTO);
-        if (comment != null) {
-            return ResponseEntity.ok(comment);
-        } else {
-            throw new CommentNotFoundException();
-        }
+    public CommentDTO updateComments(@PathVariable("commentId") Integer commentId,
+                                     @PathVariable("adId") Integer adId,
+                                     @RequestBody CommentDTO commentDTO) {
+        return commentService.updateComments(commentId, adId,commentDTO);
     }
 
 }

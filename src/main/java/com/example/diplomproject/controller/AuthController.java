@@ -8,13 +8,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-@Slf4j
 @CrossOrigin(value = "http://localhost:3000")
 @RestController
 @RequiredArgsConstructor
@@ -34,8 +33,12 @@ public class AuthController {
             }
     )
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginReq req) {
-        return ResponseEntity.ok(authService.login(req.getUsername(), req.getPassword()));
+    public ResponseEntity<?> login(@RequestBody LoginReq loginReq) {
+        if (authService.login(loginReq.getUsername(), loginReq.getPassword())) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 
     @Operation(summary = "Регистрация пользователя", tags = "Регистрация",
@@ -50,8 +53,12 @@ public class AuthController {
             }
     )
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterReq req) {
-        return ResponseEntity.ok(authService.register(req));
+    public ResponseEntity<?> register(@RequestBody RegisterReq registerReq) {
+        if (authService.register(registerReq)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
 }

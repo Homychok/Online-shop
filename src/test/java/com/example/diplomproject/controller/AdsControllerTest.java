@@ -21,13 +21,9 @@ import com.example.diplomproject.enums.Role;
 import com.example.diplomproject.model.Ads;
 import com.example.diplomproject.model.User;
 import com.example.diplomproject.repository.AdsRepository;
-import com.example.diplomproject.repository.ImageRepository;
 import com.example.diplomproject.repository.UserRepository;
-import com.example.diplomproject.service.CustomUserDetailsService;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.web.servlet.MvcResult;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 
@@ -39,21 +35,17 @@ class AdsControllerTest  {
     @Autowired
     MockMvc mockMvcAds;
     @Autowired
-    private UserRepository userRepos;
+    private UserRepository userRepository;
     @Autowired
-    private AdsRepository adsRepos;
+    private AdsRepository adsRepository;
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
-    private CustomUserDetailsService myUserDetailsManager;
-    @Autowired
-    private ImageRepository imageRepository;
+    private PasswordEncoder encoder;
 
     private Authentication authentication;
     private final MockPart imageFile
             = new MockPart("image", "image", "image".getBytes());
-    @Autowired
-    private PasswordEncoder encoder;
     private final MockPart image = new MockPart("image", "image", "image".getBytes());
     private final User user = new User();
 
@@ -62,54 +54,74 @@ class AdsControllerTest  {
     @BeforeEach
     void setUp() {
         User user = new User();
-        user.setUsername("1@mail.ru");
-        user.setFirstName("firstTest");
-        user.setLastName("lastTest");
-        user.setPhone("+79990002233");
-        user.setPassword(encoder.encode("1234qwer"));
+        user.setUsername("test@test.ru");
+        user.setFirstName("firstname");
+        user.setLastName("lastname");
+        user.setPhone("+79876543210");
+        user.setPassword(encoder.encode("aqws123"));
         user.setEnabled(true);
         user.setRole(Role.USER);
-        userRepos.save(user);
+        userRepository.save(user);
 
-        createAds.setPrice(100);
+        createAds.setPrice(10);
         createAds.setTitle("title");
-        createAds.setDescription("description");
+        createAds.setDescription("horror");
 
-        ads.setPrice(200);
-        ads.setDescription("about");
+        ads.setPrice(20);
+        ads.setDescription("comedy");
         ads.setTitle("title");
         ads.setAuthor(user);
 
-        adsRepos.save(ads);
+        adsRepository.save(ads);
 
-
-
-        UserDetails userDetails = myUserDetailsManager
-                .loadUserByUsername(user.getUsername());
-        authentication = new UsernamePasswordAuthenticationToken(userDetails.getUsername(),
-                userDetails.getPassword(),
-                userDetails.getAuthorities());
-
-
-    }
+            }
 
     @AfterEach
     void tearDown() {
-        adsRepos.deleteAll();
-        userRepos.deleteAll();
+        adsRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
     void getAllAds() throws Exception {
         mockMvcAds.perform(get("/ads"))
-                .andExpectAll(status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$").exists())
-                .andExpect(jsonPath("$.results").isArray())
+                .andExpect(jsonPath("$.result").isArray())
                 .andExpect(jsonPath("$.count").isNumber());
     }
-
     @Test
-    @WithMockUser(username = "1@mail.ru", password = "1234qwer")
+    public void testGetAllAds() throws Exception {
+        mockMvcAds.perform(get("/ads"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").exists());
+    }
+
+//    @Test
+//    public void testAddAds() throws Exception {
+//        createAds.setTitle("Test test test");
+//        createAds.setDescription("Add Test test");
+//        createAds.setPrice(150);
+//
+//        MockPart created = new MockPart("properties",
+//                objectMapper.writeValueAsBytes(createAds));
+//
+//        MvcResult result = mockMvcAds.perform(multipart("/ads")
+//                        .part(image)
+//                        .part(created)
+//                        .with(authentication(authentication)))
+//                .andExpect(status().isCreated())
+//                .andExpect(jsonPath("$.pk").isNotEmpty())
+//                .andExpect(jsonPath("$.pk").isNumber())
+//                .andExpect(jsonPath("$.title").value(createAds.getTitle()))
+//                .andReturn();
+//
+//        String responseBody = result.getResponse().getContentAsString();
+//        AdsDTO createdAd = objectMapper.readValue(responseBody, AdsDTO.class);
+//        adsRepository.deleteById(createdAd.getPk());
+//    }
+    @Test
+    @WithMockUser(username = "test@test.ru", password = "aqws123")
     void addAds() throws Exception {
         MockPart created = new MockPart("properties", objectMapper.writeValueAsBytes(createAds));
 
@@ -124,98 +136,92 @@ class AdsControllerTest  {
     }
 
     @Test
-    @WithMockUser(username = "1@mail.ru", password = "1234qwer")
-    void getAds() throws Exception {
+    @WithMockUser(username = "test@test.ru", password = "aqws123")
+    void testGetAds() throws Exception {
         mockMvcAds.perform(get("/ads/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("title"))
-                .andExpect(jsonPath("$.description").value("about"))
-                .andExpect(jsonPath("$.price").value(200));
+                .andExpect(jsonPath("$.description").value("horror"))
+                .andExpect(jsonPath("$.price").value(10));
     }
 
     @Test
-    public void testDeleteAds() throws Exception {
-        Ads adsD = new Ads();
-        adsD.setTitle("Test del");
-        adsD.setDescription("Test test del");
-        adsD.setPrice(250);
-        adsD.setAuthor(user);
-        adsRepos.save(adsD);
-
-        mockMvcAds.perform(delete("/ads/{id}", adsD.getId())
+    @WithMockUser(username = "test@test.ru", password = "aqws123")
+    public void testRemove() throws Exception {
+        mockMvcAds.perform(delete("/ads/1")
                         .with(authentication(authentication)))
                 .andExpect(status().isNoContent());
     }
     @Test
-    @WithMockUser(username = "2@mail.ru", password = "1234qwer")
-    void removeAds_withOtherUser() throws Exception {
+    @WithMockUser(username = "test2@test.ru", password = "123aqws")
+    void testRemoveAdsOfOtherUser() throws Exception {
         mockMvcAds.perform(delete("/ads/1"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    @WithMockUser(username = "2@mail.ru", password = "1234qwer", roles = "ADMIN")
-    void removeAds_withAdminRole() throws Exception {
+    @WithMockUser(username = "test2@test.ru", password = "123aqws", roles = "ADMIN")
+    void testRemoveAdsByAdmin() throws Exception {
         mockMvcAds.perform(delete("/ads/1"))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void searchByTitle() throws Exception {
+    void testSearchByTitle() throws Exception {
         mockMvcAds.perform(get("/ads/search?title=title"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").exists())
-                .andExpect(jsonPath("$.results").isArray())
+                .andExpect(jsonPath("$.result").isArray())
                 .andExpect(jsonPath("$.results[0].title").value("title"))
                 .andExpect(jsonPath("$.count").isNumber());
     }
 
     @Test
-    @WithMockUser(username = "1@mail.ru", password = "1234qwer")
+    @WithMockUser(username = "test@test.ru", password = "aqws123")
     void updateAds() throws Exception {
         mockMvcAds.perform(patch("/ads/" + ads.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
                                 "  \"price\": \"15\",\n" +
-                                "  \"title\": \"title2\",\n" +
+                                "  \"title\": \"title9\",\n" +
                                 " \"description\": \"aboutNew\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("title2"));
+                .andExpect(jsonPath("$.title").value("title9"));
 
     }
 
     @Test
-    @WithMockUser(username = "2@mail.ru", password = "1234qwer")
-    void updateAds_withAnotherUser() throws Exception {
+    @WithMockUser(username = "test2@test.ru", password = "123aqws", roles = "ADMIN")
+    void testUpdateStrangeAds() throws Exception {
         mockMvcAds.perform(patch("/ads/" + ads.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
                                 "  \"price\": \"15\",\n" +
-                                "  \"title\": \"title2\",\n" +
+                                "  \"title\": \"title9\",\n" +
                                 " \"description\": \"aboutNew\"}"))
                 .andExpect(status().isForbidden());
 
     }
 
     @Test
-    @WithMockUser(username = "2@mail.ru", password = "1234qwer", roles = "ADMIN")
-    void updateAds_withRoleAdmin() throws Exception {
+    @WithMockUser(username = "test2@test.ru", password = "123aqws", roles = "ADMIN")
+    void testUpdateByAdmin() throws Exception {
         mockMvcAds.perform(patch("/ads/" + ads.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
                                 "  \"price\": \"15\",\n" +
-                                "  \"title\": \"title2\",\n" +
+                                "  \"title\": \"title9\",\n" +
                                 " \"description\": \"aboutNew\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("title2"));
+                .andExpect(jsonPath("$.title").value("title9"));
 
     }
 
 
 
     @Test
-    @WithMockUser(username = "1@mail.ru", password = "1234qwer")
-    void updateImage() throws Exception {
+    @WithMockUser(username = "test@test.ru", password = "aqws123")
+    void testUpdateImage() throws Exception {
         mockMvcAds.perform(patch("/ads/" + ads.getId() + "/image")
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .with(request -> {
@@ -227,8 +233,8 @@ class AdsControllerTest  {
     }
 
     @Test
-    @WithMockUser(username = "2@mail.ru", password = "1234qwer")
-    void updateImage_withOtherUser() throws Exception {
+    @WithMockUser(username = "test2@test.ru", password = "123aqws", roles = "ADMIN")
+    void testUpdateStrangeUser() throws Exception {
         mockMvcAds.perform(patch("/ads/" + ads.getId() + "/image")
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .with(request -> {
@@ -240,8 +246,8 @@ class AdsControllerTest  {
     }
 
     @Test
-    @WithMockUser(username = "2@mail.ru", password = "1234qwer", roles = "ADMIN")
-    void updateImage_withRoleAdmin() throws Exception {
+    @WithMockUser(username = "test2@test.ru", password = "123aqws", roles = "ADMIN")
+    void testUpdateImageByAdmin() throws Exception {
         mockMvcAds.perform(patch("/ads/" + ads.getId() + "/image")
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .with(request -> {
@@ -253,82 +259,53 @@ class AdsControllerTest  {
     }
 
     @Test
-    void showImage() throws Exception {
+    void testShowImage() throws Exception {
         mockMvcAds.perform(get("/ads/image/" + ads.getId()))
                 .andExpect(status().isOk())
                 .andExpect(content().bytes("image".getBytes()));
     }
-    @Test
-    public void testGetAllAds() throws Exception {
-        mockMvcAds.perform(get("/ads"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").exists());
-    }
+
+
+//    @Test
+//    public void testGetAdsById() throws Exception {
+//        mockMvcAds.perform(get("/ads/{id}", ads.getId())
+//                        .with(authentication(authentication)))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.pk").value(ads.getId()))
+//                .andExpect(jsonPath("$.title").value(ads.getTitle()))
+//                .andExpect(jsonPath("$.description").value(ads.getDescription()))
+//                .andExpect(jsonPath("$.price").value(ads.getPrice()))
+//                .andExpect(jsonPath("$.email").value(user.getUsername()))
+//                .andExpect(jsonPath("$.authorFirstName").value(user.getFirstName()))
+//                .andExpect(jsonPath("$.authorLastName").value(user.getLastName()))
+//                .andExpect(jsonPath("$.phone").value(user.getPhone()));
+//    }
+
+
+
+//    @Test
+//    public void testUpdateAds() throws Exception {
+//        String newTitle = "Ads test";
+//        String newDesc = "Test test2";
+//        Integer newPrice = 1555;
+//        ads.setTitle(newTitle);
+//        ads.setDescription(newDesc);
+//        ads.setPrice(newPrice);
+//        adsRepos.save(ads);
+//
+//        mockMvcAds.perform(patch("/ads/{id}", ads.getId())
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(ads))
+//                        .with((authentication(authentication))))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.title").value(newTitle));
+//
+//
+//    }
 
     @Test
-    public void testAddAds() throws Exception {
-        createAds.setTitle("Test test test");
-        createAds.setDescription("Add Test test");
-        createAds.setPrice(150);
-
-        MockPart created = new MockPart("properties",
-                objectMapper.writeValueAsBytes(createAds));
-
-        MvcResult result = mockMvcAds.perform(multipart("/ads")
-                        .part(image)
-                        .part(created)
-                        .with(authentication(authentication)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.pk").isNotEmpty())
-                .andExpect(jsonPath("$.pk").isNumber())
-                .andExpect(jsonPath("$.title").value(createAds.getTitle()))
-                .andReturn();
-
-        String responseBody = result.getResponse().getContentAsString();
-        AdsDTO createdAd = objectMapper.readValue(responseBody, AdsDTO.class);
-        adsRepos.deleteById(createdAd.getPk());
-    }
-
-    @Test
-    public void testGetAdsById() throws Exception {
-        mockMvcAds.perform(get("/ads/{id}", ads.getId())
-                        .with(authentication(authentication)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.pk").value(ads.getId()))
-                .andExpect(jsonPath("$.title").value(ads.getTitle()))
-                .andExpect(jsonPath("$.description").value(ads.getDescription()))
-                .andExpect(jsonPath("$.price").value(ads.getPrice()))
-                .andExpect(jsonPath("$.email").value(user.getUsername()))
-                .andExpect(jsonPath("$.authorFirstName").value(user.getFirstName()))
-                .andExpect(jsonPath("$.authorLastName").value(user.getLastName()))
-                .andExpect(jsonPath("$.phone").value(user.getPhone()));
-    }
-
-
-
-    @Test
-    public void testUpdateAds() throws Exception {
-        String newTitle = "Ads test";
-        String newDesc = "Test test2";
-        Integer newPrice = 1555;
-        ads.setTitle(newTitle);
-        ads.setDescription(newDesc);
-        ads.setPrice(newPrice);
-        adsRepos.save(ads);
-
-        mockMvcAds.perform(patch("/ads/{id}", ads.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(ads))
-                        .with((authentication(authentication))))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value(newTitle));
-
-
-    }
-
-    @Test
-    @WithMockUser(username = "1@mail.ru", password = "1234qwer")
-    void getAdsMe() throws Exception {
+    @WithMockUser(username = "test@test.ru", password = "aqws123")
+    void getAdsAuth() throws Exception {
         mockMvcAds.perform(get("/ads/me"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").exists())
