@@ -29,19 +29,18 @@ public class AdsController {
     private final AdsService adsService;
 
 
-    @Operation(
-            summary = "Получить все объявления", tags = "Объявления",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200", description = "OK",
-                            content = {@Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = ResponseWrapperAds.class))})
-            }
-    )
+//    @Operation(
+//            summary = "Получить все объявления", tags = "Объявления",
+//            responses = {
+//                    @ApiResponse(
+//                            responseCode = "200", description = "OK",
+//                            content = {@Content(mediaType = "application/json",
+//                                    schema = @Schema(implementation = ResponseWrapperAds.class))})
+//            }
+//    )
     @GetMapping
-    public ResponseEntity<ResponseWrapperAds> getAllAds() {
-        ResponseWrapperAds responseWrapperAds = adsService.getAllAds();
-        return ResponseEntity.ok(responseWrapperAds);
+    public ResponseEntity<?> getAllAds() {
+        return ResponseEntity.ok(adsService.getAllAds());
     }
 
     @Operation(
@@ -60,7 +59,7 @@ public class AdsController {
     public ResponseEntity<AdsDTO> addAds(@RequestPart("image") MultipartFile imageFile,
                                          @Valid
                                          @RequestPart("properties") CreateAds createAds,
-                                         Authentication authentication) throws IOException {
+                                         Authentication authentication)  {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(adsService.addAds(imageFile, createAds, authentication));
     }
@@ -155,13 +154,12 @@ public class AdsController {
             "== authentication.principal.username or hasRole('ROLE_ADMIN')")
     @PatchMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateAdsImage(@PathVariable Integer id,
-                                            @RequestPart("image") MultipartFile imageFile) throws IOException {
-        adsService.updateImage(id, imageFile);
-        return ResponseEntity.ok().build();
+                                            @RequestPart("image") MultipartFile imageFile) {
+        return ResponseEntity.ok(adsService.updateImage(id, imageFile));
     }
 
     @Operation(hidden = true)
-    @GetMapping(value = "/image/{id}", produces = MediaType.IMAGE_JPEG_VALUE)
+    @GetMapping(value = "/image/{id}", produces = MediaType.MULTIPART_FORM_DATA_VALUE)
     public byte[] getImage(@PathVariable("id") Integer id) {
         return adsService.getImage(id);
     }

@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.stream.Collectors;
 
@@ -37,7 +38,7 @@ public class AdsService {
         return responseWrapperAds;
     }
 
-    public AdsDTO addAds(  MultipartFile imageFile, CreateAds createAds,Authentication authentication) throws IOException {
+    public AdsDTO addAds(  MultipartFile imageFile, CreateAds createAds,Authentication authentication) {
 ChecksMethods.checkForChangeParameter(imageFile);
         Ads ads = AdsMapper.fromCreateAds(ChecksMethods.checkForChangeParameter(createAds));
         try {
@@ -49,17 +50,18 @@ ChecksMethods.checkForChangeParameter(imageFile);
         User user = userRepository.findByUsernameIgnoreCase(authentication.getName())
                 .orElseThrow(UserNotFoundException::new);
         ads.setAuthor(user);
-        return AdsMapper.toDTO(adsRepository.save(ads));
+        return AdsMapper.toDTO(adsRepository.saveAndFlush(ads));
     }
 
     public FullAds getAdsById(Integer id) {
         return AdsMapper.toFullAds(adsRepository.findById(id)
                 .orElseThrow(AdsNotFoundException::new));
     }
-    public void removeAdsById(Integer id) {
+    @Transactional
+        public void removeAdsById(Integer id) {
         adsRepository.deleteById(id);
     }
-
+    @Transactional
     public AdsDTO updateAds(Integer id, CreateAds createAds) {
         ChecksMethods.checkForChangeParameter(createAds);
         Ads ads = adsRepository.findById(id)
@@ -70,7 +72,7 @@ ChecksMethods.checkForChangeParameter(imageFile);
         adsRepository.save(ads);
         return AdsMapper.toDTO(adsRepository.save(ads));
     }
-
+@Transactional
     public byte[] updateImage(Integer id, MultipartFile avatar) {
         ChecksMethods.checkForChangeParameter(avatar);
         Ads ads = adsRepository.findById(id)
@@ -81,7 +83,7 @@ ChecksMethods.checkForChangeParameter(imageFile);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return adsRepository.save(ads).getImage();
+        return adsRepository.saveAndFlush(ads).getImage();
     }
     public byte[] getImage(Integer id) {
         return adsRepository.findById(id)

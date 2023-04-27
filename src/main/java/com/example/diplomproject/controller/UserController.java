@@ -91,11 +91,11 @@ public class UserController {
     @PatchMapping(value = "/me/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateUserAvatar(Authentication authentication,
                                               @RequestPart("image") MultipartFile avatarFile) throws IOException {
-       ;
-        return ResponseEntity.ok( userService.updateUserAvatar(authentication, avatarFile));
+       userService.updateUserAvatar(authentication, avatarFile);
+        return ResponseEntity.ok().build();
     }
     @Operation(hidden = true)
-    @GetMapping(value = "/me/image/{id}", produces = MediaType.IMAGE_JPEG_VALUE)
+    @GetMapping(value = "/me/image/{id}", produces = MediaType.MULTIPART_FORM_DATA_VALUE)
     public byte[] showAvatarOnId(@PathVariable("id") Integer id) {
         return userService.showAvatarOnId(id);
     }
