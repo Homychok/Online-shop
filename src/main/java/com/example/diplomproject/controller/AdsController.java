@@ -159,7 +159,7 @@ public class AdsController {
     }
 
     @Operation(hidden = true)
-    @GetMapping(value = "/image/{id}", produces = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @GetMapping(value = "/image/{id}", produces = MediaType.IMAGE_JPEG_VALUE)
     public byte[] getImage(@PathVariable("id") Integer id) {
         return adsService.getImage(id);
     }
