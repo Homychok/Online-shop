@@ -1,39 +1,16 @@
 package com.example.diplomproject.dto;
-import com.example.diplomproject.exception.ImageNotFoundException;
-import com.example.diplomproject.model.Ads;
+import com.example.diplomproject.annotations.MyAnnotation;
 import lombok.Data;
-
 @Data
 public class AdsDTO {
     @MyAnnotation(name = "id автора объявления")
     private Integer author;
-//    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
 @MyAnnotation(name = "ссылка на картинку объявления")
 private String image;
-//    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
 @MyAnnotation(name = "id объявления")
 private Integer pk;
     @MyAnnotation(name = "цена объявления")
-    private int price;
+    private Integer price;
     @MyAnnotation(name = "заголовок объявления")
     private String title;
-//    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @MyAnnotation(name = "описание объявления")
-    private String description;
-    public static AdsDTO fromAdsDTO(Ads ads) {
-        AdsDTO adsDTO = new AdsDTO();
-
-        adsDTO.setAuthor(ads.getAuthor().getId());
-        adsDTO.setPk(ads.getId());
-        adsDTO.setPrice(ads.getPrice());
-        adsDTO.setTitle(ads.getTitle());
-        if (ads.getImage() == null) {
-            adsDTO.setImage("No image");
-            throw new ImageNotFoundException();
-        } else {
-            adsDTO.setImage("/ads/me/image/"
-                    + ads.getImage().getId());
-        }
-        return adsDTO;
-    }
 }

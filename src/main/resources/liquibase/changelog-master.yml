@@ -1,9 +1,4 @@
 databaseChangeLog:
-  - include:
-      file: liquibase/scripts/avatar.sql
-
-  - include:
-      file: liquibase/scripts/image.sql
 
   - include:
       file: liquibase/scripts/users.sql

@@ -1,7 +1,6 @@
 package com.example.diplomproject.controller;
 import com.example.diplomproject.dto.NewPassword;
 import com.example.diplomproject.dto.UserDTO;
-import com.example.diplomproject.model.User;
 import com.example.diplomproject.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -9,13 +8,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 
 import java.io.IOException;
 @CrossOrigin(value = "http://localhost:3000")
@@ -26,7 +23,6 @@ import java.io.IOException;
 public class UserController {
 
     private final UserService userService;
-//    private final AvatarService avatarService;
 
     @Operation(
             summary = "Обновление пароля", tags = "Пользователи",
@@ -60,8 +56,8 @@ public class UserController {
             }
     )
     @GetMapping("/me")
-    public ResponseEntity<UserDTO> getUser(Authentication authentication) {
-        return ResponseEntity.ok(userService.getUser(authentication));
+    public ResponseEntity<?> getUser(Authentication authentication) {
+        return ResponseEntity.ok(userService.getUserByUsername(authentication));
     }
 
     @Operation(
@@ -78,9 +74,8 @@ public class UserController {
             }
     )
     @PatchMapping("/me")
-    public ResponseEntity<UserDTO> updateUser(@RequestBody UserDTO userDTO,
-                                              Authentication authentication) {
-        return ResponseEntity.ok(userService.updateUser(userDTO, authentication));
+    public ResponseEntity<UserDTO> updateUser(@RequestBody UserDTO userDTO) {
+        return ResponseEntity.ok(userService.updateUser(userDTO));
     }
 
     @Operation(
@@ -94,21 +89,14 @@ public class UserController {
             }
     )
     @PatchMapping(value = "/me/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> updateUserAvatar(@RequestPart("image") MultipartFile avatarFile,
-                                              Authentication authentication) throws IOException {
-       ;
-        return ResponseEntity.ok( userService.updateUserAvatar(avatarFile, authentication));
+    public ResponseEntity<?> updateUserAvatar(Authentication authentication,
+                                              @RequestPart("image") MultipartFile avatarFile) throws IOException {
+       userService.updateUserAvatar(authentication, avatarFile);
+        return ResponseEntity.ok().build();
     }
-
-//    @Operation(hidden = true)
-//    @GetMapping(value = "/avatar/{id}", produces = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    public ResponseEntity<byte[]> getAvatar(@PathVariable("id") Integer id) {
-//        Pair<String, byte[]> pair = userService.g(id);
-//        return ResponseEntity.ok()
-//                .contentType(MediaType.parseMediaType(pair.getLeft()))
-//                .contentLength(pair.getRight().length)
-//                .body(pair.getRight());
-//    }
-
-
+    @Operation(hidden = true)
+    @GetMapping(value = "/me/image/{id}", produces = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public byte[] showAvatarOnId(@PathVariable("id") Integer id) {
+        return userService.showAvatarOnId(id);
+    }
 }

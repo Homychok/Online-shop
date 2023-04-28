@@ -3,7 +3,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
-
 @Component
 public class MarcetJackson2HttpMessageConverter extends AbstractJackson2HttpMessageConverter {
     protected MarcetJackson2HttpMessageConverter(ObjectMapper objectMapper) {

@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
@@ -24,7 +23,9 @@ public class WebSecurityConfig extends GlobalMethodSecurityConfiguration {
           "/login",
           "/register",
           "/ads",
-          "/ads/image/**"
+          "/ads/image/**",
+          "/ads/search",
+          "/users/me/image"
   };
 
 
@@ -39,8 +40,7 @@ public class WebSecurityConfig extends GlobalMethodSecurityConfiguration {
                                     .permitAll()
                                     .mvcMatchers("/ads/**", "/users/**")
                                     .authenticated()
-////                                    .anyRequest()
-//                                    .authenticated()
+
             )
             .cors()
             .and()

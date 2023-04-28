@@ -1,8 +1,6 @@
 package com.example.diplomproject.controller;
 
 import com.example.diplomproject.dto.*;
-import com.example.diplomproject.exception.AdsNotFoundException;
-import com.example.diplomproject.exception.IncorrectArgumentException;
 import com.example.diplomproject.service.AdsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,7 +16,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-
 import javax.validation.Valid;
 import java.io.IOException;
 
@@ -31,19 +28,19 @@ public class AdsController {
 
     private final AdsService adsService;
 
-    @Operation(
-            summary = "Получить все объявления", tags = "Объявления",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200", description = "OK",
-                            content = {@Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = ResponseWrapperAds.class))})
-            }
-    )
+
+//    @Operation(
+//            summary = "Получить все объявления", tags = "Объявления",
+//            responses = {
+//                    @ApiResponse(
+//                            responseCode = "200", description = "OK",
+//                            content = {@Content(mediaType = "application/json",
+//                                    schema = @Schema(implementation = ResponseWrapperAds.class))})
+//            }
+//    )
     @GetMapping
-    public ResponseEntity<ResponseWrapperAds> getAllAds() {
-        ResponseWrapperAds responseWrapperAds = adsService.getAllAds();
-        return ResponseEntity.ok(responseWrapperAds);
+    public ResponseEntity<?> getAllAds() {
+        return ResponseEntity.ok(adsService.getAllAds());
     }
 
     @Operation(
@@ -52,20 +49,19 @@ public class AdsController {
                     @ApiResponse(
                             responseCode = "201", description = "Created",
                             content = {@Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = CreateAds.class))}),
+                                    schema = @Schema(implementation = AdsDTO.class))}),
                     @ApiResponse(responseCode = "401", description = "Unauthorised", content = @Content),
                     @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content),
                     @ApiResponse(responseCode = "404", description = "Not found", content = @Content)
             }
     )
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<AdsDTO> addAds(@RequestPart("properties") CreateAds createAds,
+    public ResponseEntity<AdsDTO> addAds(@RequestPart("image") MultipartFile imageFile,
                                          @Valid
-                                         @RequestPart("image") MultipartFile imageFile,
-                                         Authentication authentication) throws IOException {
-        AdsDTO adsDTO = adsService.addAds(createAds, imageFile, authentication);
+                                         @RequestPart("properties") CreateAds createAds,
+                                         Authentication authentication)  {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(adsDTO);
+                .body(adsService.addAds(imageFile, createAds, authentication));
     }
 
     @Operation(
@@ -79,12 +75,8 @@ public class AdsController {
             }
     )
     @GetMapping("/{id}")
-    public ResponseEntity<FullAds> getFullAds(@PathVariable("id") Integer id) {
-        FullAds fullAds = adsService.getAdsById(id);
-        if (fullAds == null) {
-            throw new AdsNotFoundException();
-        }
-        return ResponseEntity.ok(fullAds);
+    public ResponseEntity<?> getAds(@PathVariable Integer id) {
+        return ResponseEntity.ok(adsService.getAdsById(id));
     }
 
     @Operation(
@@ -110,8 +102,8 @@ public class AdsController {
                     @ApiResponse(
                             responseCode = "200", description = "OK",
                             content = {@Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = CreateAds.class))}),
-                    @ApiResponse(responseCode = "401", description = "Unauthorised", content = @Content), //где получить?
+                                    schema = @Schema(implementation = AdsDTO.class))}),
+                    @ApiResponse(responseCode = "401", description = "Unauthorised", content = @Content),
                     @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content),
                     @ApiResponse(responseCode = "404", description = "Not found", content = @Content)
             }
@@ -119,13 +111,9 @@ public class AdsController {
     @PreAuthorize("@adsService.getAdsById(#id).getEmail()" +
             "== authentication.principal.username or hasRole('ROLE_ADMIN')")
     @PatchMapping("/{id}")
-    public ResponseEntity<AdsDTO> updateAds(@PathVariable("id") Integer id,
-                                            @RequestBody CreateAds createAds) {
-        AdsDTO adsDTO = adsService.updateAds(id, createAds);
-        if (adsDTO == null) {
-            throw new AdsNotFoundException();
-        }
-        return ResponseEntity.ok(adsDTO);
+    public ResponseEntity<?> updateAds(@PathVariable Integer id,
+                                       @RequestBody CreateAds createAds) {
+        return ResponseEntity.ok(adsService.updateAds(id,createAds));
     }
 
     @Operation(
@@ -135,31 +123,21 @@ public class AdsController {
                             responseCode = "200", description = "OK",
                             content = {@Content(mediaType = "application/json",
                                     schema = @Schema(implementation = ResponseWrapperAds.class))}),
-                    @ApiResponse(responseCode = "401", description = "Unauthorised", content = @Content), //где получить?
+                    @ApiResponse(responseCode = "401", description = "Unauthorised", content = @Content),
                     @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content)
             }
     )
     @GetMapping("/me")
-    public ResponseEntity<ResponseWrapperAds> getAdsMe(Authentication authentication) {
-        ResponseWrapperAds responseWrapperAds = adsService.getAdsAuthentication(authentication);
-        return ResponseEntity.ok(responseWrapperAds);
+    public ResponseEntity<?> getAdsAuthentication(Authentication authentication) {
+        return ResponseEntity.ok(adsService.getAdsAuthentication(authentication));
     }
-    @GetMapping("/source")
-    @Operation(
-            summary = "Поиск объявлений по названию", tags = "Объявления",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200", description = "OK",
-                            content = {@Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = ResponseWrapperAds.class))})
-            }
-    )
-    public ResponseEntity<ResponseWrapperAds> getAdsByTitle(
-            @RequestParam() String text) {
-        if (text == null || text.isBlank()) {
-            throw new IncorrectArgumentException();
-        }
-        return ResponseEntity.ok(adsService.getAdsByTitle(text));
+
+    @Operation(hidden = true)
+
+    @GetMapping("/search")
+    public ResponseEntity<?> getAdsByTitle(
+            @RequestParam(required = false) String title) {
+        return ResponseEntity.ok(adsService.getAdsByTitle(title));
     }
 
     @Operation(
@@ -168,20 +146,20 @@ public class AdsController {
                     @ApiResponse(
                             responseCode = "200", description = "OK",
                             content = { @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = UserDTO.class))}),
+                                    schema = @Schema(implementation = AdsDTO.class))}),
                     @ApiResponse(responseCode = "404", description = "Not found", content = @Content)
             }
     )
     @PreAuthorize("@adsService.getAdsById(#id).getEmail()" +
             "== authentication.principal.username or hasRole('ROLE_ADMIN')")
     @PatchMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> updateAdsImage(@PathVariable("id") Integer id,
-                                            @RequestPart("image") MultipartFile imageFile) throws IOException {
-        return ResponseEntity.ok(adsService.updateImage(id, imageFile).getData());
+    public ResponseEntity<?> updateAdsImage(@PathVariable Integer id,
+                                            @RequestPart("image") MultipartFile imageFile) {
+        return ResponseEntity.ok(adsService.updateImage(id, imageFile));
     }
 
     @Operation(hidden = true)
-    @GetMapping(value = "/image/{id}", produces = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @GetMapping(value = "/image/{id}", produces = MediaType.IMAGE_JPEG_VALUE)
     public byte[] getImage(@PathVariable("id") Integer id) {
         return adsService.getImage(id);
     }
