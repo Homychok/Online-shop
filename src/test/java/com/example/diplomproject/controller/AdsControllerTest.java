@@ -92,7 +92,7 @@ class AdsControllerTest  {
     @Test
     @WithMockUser(username = "test2@test.ru", password = "123aqws", roles = "ADMIN")
     void testUpdateByAdmin() throws Exception {
-        mockMvcAds.perform(patch("/ads/" + ads.getId())
+        mockMvcAds.perform(patch("/ads/" + ads.getPk())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
                                 "  \"price\": \"15\",\n" +
@@ -105,7 +105,7 @@ class AdsControllerTest  {
     @Test
     @WithMockUser(username = "test@test.ru", password = "aqws123")
     void testUpdateImage() throws Exception {
-        mockMvcAds.perform(patch("/ads/" + ads.getId() + "/image")
+        mockMvcAds.perform(patch("/ads/" + ads.getPk() + "/image")
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .with(request -> {
                             request.addPart(image);
@@ -117,7 +117,7 @@ class AdsControllerTest  {
     @Test
     @WithMockUser(username = "test2@test.ru", password = "123aqws", roles = "ADMIN")
     void testUpdateImageByAdmin() throws Exception {
-        mockMvcAds.perform(patch("/ads/" + ads.getId() + "/image")
+        mockMvcAds.perform(patch("/ads/" + ads.getPk() + "/image")
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .with(request -> {
                             request.addPart(image);
@@ -126,6 +126,7 @@ class AdsControllerTest  {
                 .andExpect(status().isOk());
 
     }
+
 //    @Test
 //    public void testGetAllAds() throws Exception {
 //        mockMvcAds.perform(get("/ads"))
@@ -135,7 +136,7 @@ class AdsControllerTest  {
 //    @Test
 //    @WithMockUser(username = "test@test.ru", password = "aqws123")
 //    void updateAds() throws Exception {
-//        mockMvcAds.perform(patch("/ads/" + ads.getId())
+//        mockMvcAds.perform(patch("/ads/" + ads.getPk())
 //                        .contentType(MediaType.APPLICATION_JSON)
 //                        .content("{\n" +
 //                                "  \"price\": \"15\",\n" +
@@ -200,13 +201,13 @@ class AdsControllerTest  {
 //                .andExpect(jsonPath("$.results[0].title").value("title"))
 //                .andExpect(jsonPath("$.count").isNumber());
 //    }
-
-
-
+//
+//
+//
 //    @Test
 //    @WithMockUser(username = "test2@test.ru", password = "123aqws", roles = "ADMIN")
 //    void testUpdateStrangeAds() throws Exception {
-//        mockMvcAds.perform(patch("/ads/" + ads.getId())
+//        mockMvcAds.perform(patch("/ads/" + ads.getPk())
 //                        .contentType(MediaType.APPLICATION_JSON)
 //                        .content("{\n" +
 //                                "  \"price\": \"15\",\n" +
@@ -215,17 +216,17 @@ class AdsControllerTest  {
 //                .andExpect(status().isForbidden());
 //
 //    }
-
-
-
-
-
-
-
+//
+//
+//
+//
+//
+//
+//
 //    @Test
 //    @WithMockUser(username = "test2@test.ru", password = "123aqws", roles = "ADMIN")
 //    void testUpdateStrangeUser() throws Exception {
-//        mockMvcAds.perform(patch("/ads/" + ads.getId() + "/image")
+//        mockMvcAds.perform(patch("/ads/" + ads.getPk() + "/image")
 //                        .contentType(MediaType.MULTIPART_FORM_DATA)
 //                        .with(request -> {
 //                            request.addPart(image);
@@ -236,7 +237,7 @@ class AdsControllerTest  {
 //    }
 //    @Test
 //    void testShowImage() throws Exception {
-//        mockMvcAds.perform(get("/ads/image/" + ads.getId()))
+//        mockMvcAds.perform(get("/ads/image/" + ads.getPk()))
 //                .andExpect(status().isOk())
 //                .andExpect(content().bytes("image".getBytes()));
 //    }

@@ -40,18 +40,18 @@ public class CommentService {
     }
 
     public void deleteAdsComment(Integer commentId, Integer adId){
-            commentRepository.deleteByIdAndAdsId(ChecksMethods.checkForChangeParameter(commentId),adId);
+            commentRepository.deleteByPkAndAdsPk(ChecksMethods.checkForChangeParameter(commentId),adId);
         }
 
     public CommentDTO updateComments(Integer commentId, Integer adId, CommentDTO commentDTO){
-        Comment comment = commentRepository.findByIdAndAdsId(commentId, adId)
+        Comment comment = commentRepository.findByPkAndAdsPk(commentId, adId)
                 .orElseThrow(CommentNotFoundException::new);
         comment.setText(commentDTO.getText());
         return CommentMapper.toDTO(commentRepository.save(comment));
     }
     public ResponseWrapperComment getCommentsByAdsId(Integer adsId) {
         ResponseWrapperComment responseWrapperComment = new ResponseWrapperComment();
-        responseWrapperComment.setResult(commentRepository.findAllByAdsId(adsId)
+        responseWrapperComment.setResult(commentRepository.findAllByAdsPk(adsId)
                 .stream()
                 .map(CommentMapper::toDTO)
                 .collect(Collectors.toList()));

@@ -108,7 +108,7 @@ class CommentControllerTest {
     @Test
     @WithMockUser(username = "test@test.ru", password = "aqws123")
     public void testGetCommentsByAdId() throws Exception {
-        mockMvc.perform(get("/ads/{id}/comments", ads.getId())
+        mockMvc.perform(get("/ads/{id}/comments", ads.getPk())
                         .with(authentication(authentication)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").exists())
@@ -119,7 +119,7 @@ class CommentControllerTest {
 
     @Test
     public void testAddComment() throws Exception {
-        MvcResult result = mockMvc.perform(post("/ads/{id}/comments", ads.getId())
+        MvcResult result = mockMvc.perform(post("/ads/{id}/comments", ads.getPk())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(commentDTO))
                         .with(authentication(authentication)))
