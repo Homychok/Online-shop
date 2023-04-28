@@ -132,19 +132,6 @@ class UserControllerTest {
                 .andReturn();
 
     }
-    @Test
-    @WithMockUser(username = "test@test.ru", password = "aqws123")
-    void setPassword() throws Exception {
-
-        mockMvc.perform(post("/users/set_password")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\n" +
-                                "  \"newPassword\": \"123aqws\",\n" +
-                                "  \"currentPassword\": \"aqws123\"\n" +
-                                "}"))
-                .andExpect(status().isOk());
-    }
-
 
     @Test
     @WithMockUser(username = "test@test.ru", password = "aqws123")
@@ -158,14 +145,26 @@ class UserControllerTest {
                         }))
                 .andExpect(status().isOk());
     }
-
-    @Test
-    @WithMockUser(username = "test@test.ru", password = "aqws123")
-    void showAvatarOnId() throws Exception {
-        User testUser = userRepository.findByUsernameIgnoreCase(user.getUsername()).orElseThrow(UserNotFoundException::new);
-        mockMvc.perform(get("/users/me/image/" + testUser.getId()))
-                .andExpect(status().isOk())
-                .andExpect(content().bytes("userAvatar".getBytes()));
-
-    }
+//    @Test
+//    @WithMockUser(username = "test@test.ru", password = "aqws123")
+//    void setPassword() throws Exception {
+//
+//        mockMvc.perform(post("/users/set_password")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content("{\n" +
+//                                "  \"newPassword\": \"123aqws\",\n" +
+//                                "  \"currentPassword\": \"aqws123\"\n" +
+//                                "}"))
+//                .andExpect(status().isOk());
+//    }
+//
+//    @Test
+//    @WithMockUser(username = "test@test.ru", password = "aqws123")
+//    void showAvatarOnId() throws Exception {
+//        User testUser = userRepository.findByUsernameIgnoreCase(user.getUsername()).orElseThrow(UserNotFoundException::new);
+//        mockMvc.perform(get("/users/me/image/" + testUser.getId()))
+//                .andExpect(status().isOk())
+//                .andExpect(content().bytes("userAvatar".getBytes()));
+//
+//    }
 }

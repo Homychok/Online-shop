@@ -11,7 +11,7 @@ public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer pk;
     @Column(name = "created_at")
     private Instant createdAt = Instant.now();
     private String text;

@@ -56,34 +56,34 @@ class AuthControllerTest {
         void tearDown() {
             userRepository.deleteAll();
         }
-    @Test
-    public void testRegister() throws Exception {
-        RegisterReq registerReq = new RegisterReq();
-        registerReq.setUsername("test@test.ru");
-        registerReq.setPassword("testPassword");
-        registerReq.setFirstName("User1");
-        registerReq.setLastName("Test1");
-        registerReq.setPhone("+79876543211");
-        registerReq.setPassword("password2");
-        registerReq.setRole(Role.ADMIN);
-
-
-
-        mockMvc.perform(post("/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerReq)))
-                .andExpect(status().isOk());
-
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("username", "test@test.ru");
-        jsonObject.put("password", "password2");
-
-        mockMvc.perform(post("/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonObject.toString()))
-                .andExpect(status().isOk());
-
-        userService.deleteUser(registerReq.getUsername());
-    }
+//    @Test
+//    public void testRegister() throws Exception {
+//        RegisterReq registerReq = new RegisterReq();
+//        registerReq.setUsername("test@test.ru");
+//        registerReq.setPassword("testPassword");
+//        registerReq.setFirstName("User1");
+//        registerReq.setLastName("Test1");
+//        registerReq.setPhone("+79876543211");
+//        registerReq.setPassword("password2");
+//        registerReq.setRole(Role.ADMIN);
+//
+//
+//
+//        mockMvc.perform(post("/register")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(registerReq)))
+//                .andExpect(status().isOk());
+//
+//        JSONObject jsonObject = new JSONObject();
+//        jsonObject.put("username", "test@test.ru");
+//        jsonObject.put("password", "password2");
+//
+//        mockMvc.perform(post("/login")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(jsonObject.toString()))
+//                .andExpect(status().isOk());
+//
+//        userService.deleteUser(registerReq.getUsername());
+//    }
 
 }

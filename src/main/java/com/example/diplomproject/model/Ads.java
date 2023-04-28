@@ -13,7 +13,7 @@ public class Ads {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer pk;
     private String title;
     private String description;
     private Integer price;
@@ -22,7 +22,6 @@ public class Ads {
     @Lob
     @Type(type="org.hibernate.type.BinaryType")
     private byte[] image;
-//    @JsonIgnore
     @OneToMany(mappedBy = "ads", cascade = CascadeType.ALL)
     private List<Comment> comments;
 
