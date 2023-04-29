@@ -107,7 +107,7 @@ class CommentControllerTest {
 
     @Test
     @WithMockUser(username = "test@test.ru", password = "aqws123")
-    public void testGetCommentsByAdId() throws Exception {
+    public void testGetCommentsByAdsId() throws Exception {
         mockMvc.perform(get("/ads/{id}/comments", ads.getPk())
                         .with(authentication(authentication)))
                 .andExpect(status().isOk())
@@ -134,91 +134,4 @@ class CommentControllerTest {
         AdsDTO createdAd = objectMapper.readValue(responseBody, AdsDTO.class);
         commentRepository.deleteById(createdAd.getPk());
     }
-
-//    @Test
-//    @WithMockUser(username = "test2@test.ru", password = "123aqws")
-//    void deleteComment_withOtherUser() throws Exception {
-//        mockMvcComment.perform(delete("/ads/" + ads.getId() + "/comments/" + comment.getId()))
-//                .andExpect(status().isForbidden());
-//    }
-//
-//    @Test
-//    @WithMockUser(username = "test2@test.ru", password = "123aqws", roles = "ADMIN")
-//    void deleteComment_withRoleAdmin() throws Exception {
-//        mockMvcComment.perform(delete("/ads/" + ads.getId() + "/comments/" + comment.getId()))
-//                .andExpect(status().isOk());
-//    }
-//
-//
-//    @Test
-//    @WithMockUser(username = "test@test.ru", password = "aqws123")
-//    void getComments() throws Exception {
-//        mockMvcComment.perform(get("/ads/" + ads.getId() + "/comments"))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$").exists())
-//                .andExpect(jsonPath("$.results").isArray())
-//                .andExpect(jsonPath("$.count").isNumber());
-//    }
-//
-//    @Test
-//    @WithMockUser(username = "test@test.ru", password = "aqws123")
-//    void addComment() throws Exception {
-//        CommentDTO commentDTO = new CommentDTO();
-//        commentDTO.setText("text2");
-//        mockMvcComment.perform(post("/ads/" + ads.getId() + "/comments")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(commentDTO)))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.text").value("text2"));
-//
-//    }
-//
-//    @Test
-//    @WithMockUser(username = "test2@test.ru", password = "123aqws")
-//    void deleteCommentByUser() throws Exception {
-//        mockMvcComment.perform(delete("/ads/" + ads.getId() + "/comments/" + comment.getId()))
-//                .andExpect(status().isForbidden());
-//    }
-//
-//    @Test
-//    @WithMockUser(username = "test2@test.ru", password = "123aqws", roles = "ADMIN")
-//    void deleteCommentByAdmin() throws Exception {
-//        mockMvcComment.perform(delete("/ads/" + ads.getId() + "/comments/" + comment.getId()))
-//                .andExpect(status().isOk());
-//    }
-//
-//    @Test
-//    @WithMockUser(username = "test@test.ru", password = "aqws123")
-//    void updateComment() throws Exception {
-//        mockMvcComment.perform(patch("/ads/" + ads.getId() + "/comments/" + comment.getId())
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content("{\n" +
-//                                "  \"text\": \"newText\"\n" +
-//                                "}"))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.text").value("newText"));
-//    }
-//
-//    @Test
-//    @WithMockUser(username = "test2@test.ru", password = "123aqws")
-//    void testUpdateStrangeComment() throws Exception {
-//        mockMvcComment.perform(patch("/ads/" + ads.getId() + "/comments/" + comment.getId())
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content("{\n" +
-//                                "  \"text\": \"newText\"\n" +
-//                                "}"))
-//                .andExpect(status().isForbidden());
-//    }
-//
-//    @Test
-//    @WithMockUser(username = "test2@test.ru", password = "123aqws", roles = "ADMIN")
-//    void updateCommentByAdmin() throws Exception {
-//        mockMvcComment.perform(patch("/ads/" + ads.getId() + "/comments/" + comment.getId())
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content("{\n" +
-//                                "  \"text\": \"newText\"\n" +
-//                                "}"))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.text").value("newText"));
-//    }
 }

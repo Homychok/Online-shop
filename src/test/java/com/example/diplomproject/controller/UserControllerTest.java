@@ -1,6 +1,8 @@
 package com.example.diplomproject.controller;
+import com.example.diplomproject.dto.UserDTO;
 import com.example.diplomproject.enums.Role;
 import com.example.diplomproject.exception.UserNotFoundException;
+import com.example.diplomproject.mapper.UserMapper;
 import com.example.diplomproject.model.User;
 import com.example.diplomproject.repository.UserRepository;
 import com.example.diplomproject.service.CustomUserDetailsService;
@@ -31,6 +33,7 @@ import java.util.Optional;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -117,7 +120,18 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.lastName")
                         .value(newLastName));
     }
-
+    @Test
+    @WithMockUser(username = "1@mail.ru", password = "1234qwer")
+    void updateUser() throws Exception {
+        UserDTO userDTO = UserMapper.toDTO(userRepository.findByUsernameIgnoreCase(user.getUsername()).orElseThrow(UserNotFoundException::new));
+        userDTO.setEmail("2@mail.ru");
+        mockMvc.perform(patch("/users/me")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(userDTO.getId()))
+                .andExpect(jsonPath("$.email").value("2@mail.ru"));
+    }
     @Test
     @Transactional
     public void testUpdateUserAvatar() throws Exception {
@@ -145,26 +159,6 @@ class UserControllerTest {
                         }))
                 .andExpect(status().isOk());
     }
-//    @Test
-//    @WithMockUser(username = "test@test.ru", password = "aqws123")
-//    void setPassword() throws Exception {
-//
-//        mockMvc.perform(post("/users/set_password")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content("{\n" +
-//                                "  \"newPassword\": \"123aqws\",\n" +
-//                                "  \"currentPassword\": \"aqws123\"\n" +
-//                                "}"))
-//                .andExpect(status().isOk());
-//    }
-//
-//    @Test
-//    @WithMockUser(username = "test@test.ru", password = "aqws123")
-//    void showAvatarOnId() throws Exception {
-//        User testUser = userRepository.findByUsernameIgnoreCase(user.getUsername()).orElseThrow(UserNotFoundException::new);
-//        mockMvc.perform(get("/users/me/image/" + testUser.getId()))
-//                .andExpect(status().isOk())
-//                .andExpect(content().bytes("userAvatar".getBytes()));
-//
-//    }
+
+
 }
