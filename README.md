@@ -6,7 +6,7 @@
 
 ___
 ### Разработчик
-- [Волчихина Александра]([https://github.com/weare4saken](https://github.com/Homychok))
+- [Волчихина Александра](https://github.com/Homychok)
 
 ___
 ## Описание проекта и его функциональность
@@ -30,7 +30,7 @@ ___
   - В файле **application.properties** указать путь к Вашей базе данных;
   - Запустить **Docker**;
   - В командной строке прописать ```docker pull ghcr.io/bizinmitya/front-react-avito:latest``` и скачать образ;
-  - Запустить **Docker image** с помощью команды ```docker run -p 3000:3000 ghcr.io/bizinmitya/front-react-avito:latest```;
+  - Запустить **Docker image** с помощью команды ```docker run -p 3000:3000 ghcr.io/bizinmitya/front-react-avito:v1.11```;
   - Запустить метод **main** в файле **MarketplaceApplication.java**.
 
 После выполнения всех шагов, веб-приложение будет доступно по адресу: http://localhost:3000
